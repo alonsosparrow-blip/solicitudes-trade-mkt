@@ -9,7 +9,7 @@
  */
 
 const CONFIG = {
-  EMAIL_DESTINO: 'asparrow@cineplanet.com.pe, mrodriguez@cineplanet.com.pe',
+  EMAIL_DESTINO: 'asparrow@cineplanet.com.pe, mrodriguez@cineplanet.com.pe, mpoblete@cineplanet.com.pe, ayataco@cineplanet.com.pe, mcastillo@cineplanet.com.pe',
   CARPETA_DRIVE: 'Trade_MKT',
   NOMBRE_HOJA:   'Solicitudes Trade MKT',
   MAX_FOTO_KB:   500,
