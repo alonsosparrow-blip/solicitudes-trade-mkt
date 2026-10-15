@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitudes a Trade Marketing | Cineplanet</title>
+<meta name="theme-color" content="#041E42">
+<link rel="icon" href="logo.png">
+<style>
+  /* ============ CONFIGURACIÓN ============ */
+  /* La URL del Apps Script se pega en el <script> de abajo (APPS_SCRIPT_URL). */
+
+  :root{
+    --azul:#041E42; --celeste:#0072CE; --magenta:#D40076; --verde:#009770;
+    --naranja:#E84E11; --fondo:#F3F5F9; --borde:#D5DBE5; --texto:#1B2433; --suave:#5B6678;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"TT Norms Pro","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+       background:var(--fondo);color:var(--texto);line-height:1.45}
+  header{background:#fff;border-bottom:1px solid var(--borde)}
+  .top{max-width:720px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .top img{height:40px;width:auto;display:block}
+  .top span{font-size:.8rem;color:var(--suave);text-align:right}
+  .hero{background:var(--azul);color:#fff;position:relative;overflow:hidden}
+  .hero::after{ /* claqueta */
+    content:"";position:absolute;right:0;top:0;bottom:0;width:120px;opacity:.18;
+    background:repeating-linear-gradient(45deg,#fff 0 12px,transparent 12px 24px)}
+  .hero div{max-width:720px;margin:0 auto;padding:28px 16px 30px;position:relative;z-index:1}
+  .pill{display:inline-block;background:var(--magenta);color:#fff;font-weight:700;font-size:.72rem;
+        letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
+  h1{margin:10px 0 6px;font-size:1.7rem;line-height:1.15}
+  .hero p{margin:0;opacity:.85;max-width:520px}
+  main{max-width:720px;margin:-14px auto 40px;padding:0 16px;position:relative;z-index:2}
+  .card{background:#fff;border-radius:16px;box-shadow:0 6px 24px rgba(4,30,66,.08);padding:24px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .full{grid-column:1/-1}
+  label,.lbl{display:block;font-weight:700;font-size:.92rem;margin-bottom:6px;color:var(--azul)}
+  .req{color:var(--magenta)}
+  input[type=text],input[type=date],select,textarea{
+    width:100%;font:inherit;color:inherit;padding:11px 12px;border:1.5px solid var(--borde);
+    border-radius:10px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+  textarea{min-height:110px;resize:vertical}
+  input:focus,select:focus,textarea:focus{border-color:var(--celeste);box-shadow:0 0 0 3px rgba(0,114,206,.15)}
+  .hint{font-size:.8rem;color:var(--suave);margin-top:5px}
+  .urg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .urg input{position:absolute;opacity:0;pointer-events:none}
+  .urg label{margin:0;border:1.5px solid var(--borde);border-radius:10px;padding:10px;text-align:center;
+             cursor:pointer;font-weight:700;color:var(--texto);transition:.15s}
+  .urg label small{display:block;font-weight:400;font-size:.75rem;color:var(--suave)}
+  .urg input:focus-visible + label{box-shadow:0 0 0 3px rgba(0,114,206,.25)}
+  #u-alta:checked + label{border-color:var(--naranja);background:#FDEEE7}
+  #u-media:checked + label{border-color:var(--celeste);background:#E6F1FB}
+  #u-baja:checked + label{border-color:var(--verde);background:#E5F4EF}
+  .drop{border:1.5px dashed var(--borde);border-radius:12px;padding:16px;text-align:center;cursor:pointer;
+        display:block;font-weight:400;color:var(--suave);transition:.15s}
+  .drop:hover{border-color:var(--celeste)}
+  .drop strong{color:var(--celeste)}
+  .drop input{display:none}
+  #preview{display:none;margin-top:10px;align-items:center;gap:12px}
+  #preview img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+  #preview button{background:none;border:0;color:var(--magenta);font:inherit;cursor:pointer;text-decoration:underline}
+  .error{color:#C0003A;font-size:.85rem;margin-top:6px;display:none}
+  .btn{margin-top:22px;width:100%;background:var(--celeste);color:#fff;border:0;border-radius:999px;
+       padding:14px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;transition:background .15s}
+  .btn:hover{background:#005fae}
+  .btn:disabled{opacity:.6;cursor:wait}
+  .hp{position:absolute;left:-9999px}
+  #ok{display:none;text-align:center;padding:36px 20px}
+  #ok .check{width:64px;height:64px;border-radius:50%;background:var(--verde);color:#fff;font-size:2rem;
+             display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+  #ok h2{color:var(--azul);margin:0 0 6px}
+  #ok code{background:var(--fondo);padding:3px 8px;border-radius:6px;font-weight:700}
+  footer{text-align:center;font-size:.78rem;color:var(--suave);padding:0 16px 30px}
+  @media (max-width:600px){
+    .grid{grid-template-columns:1fr}
+    h1{font-size:1.4rem}
+    .card{padding:18px}
+    .top span{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <img src="logo.png" alt="Cineplanet">
+    <span>Marketing · Trade MKT</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div>
+    <span class="pill">Gerentes de cine</span>
+    <h1>Solicitudes a Trade Marketing</h1>
+    <p>Completa el formulario y tu pedido llegará directamente al equipo de Trade Marketing.</p>
+  </div>
+</section>
+
+<main>
+  <div class="card">
+    <form id="form" novalidate>
+      <div class="grid">
+        <div class="full">
+          <label for="solicitante">Nombre del solicitante <span class="req">*</span></label>
+          <input type="text" id="solicitante" name="solicitante" required placeholder="Ej. Juan Pérez">
+        </div>
+
+        <div>
+          <label for="provincia">Provincia <span class="req">*</span></label>
+          <select id="provincia" name="provincia" required>
+            <option value="">Selecciona…</option>
+            <option>Lima</option><option>Callao</option><option>Arequipa</option>
+            <option>Cajamarca</option><option>Chiclayo</option><option>Chimbote</option>
+            <option>Cusco</option><option>Huacho</option><option>Huancayo</option>
+            <option>Huánuco</option><option>Ica</option><option>Iquitos</option>
+            <option>Juliaca</option><option>Piura</option><option>Pucallpa</option>
+            <option>Puno</option><option>Sullana</option><option>Tacna</option>
+            <option>Trujillo</option><option>Otra</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="complejo">Complejo <span class="req">*</span></label>
+          <input type="text" id="complejo" name="complejo" required placeholder="Ej. Cineplanet Alcázar">
+        </div>
+
+        <div>
+          <label for="fecha">Fecha de solicitud <span class="req">*</span></label>
+          <input type="date" id="fecha" name="fecha" required>
+        </div>
+
+        <div>
+          <label for="tipo">Tipo de trabajo <span class="req">*</span></label>
+          <select id="tipo" name="tipo" required>
+            <option value="">Selecciona…</option>
+            <option>Material POP / impresos</option>
+            <option>Señalética</option>
+            <option>Ambientación / decoración</option>
+            <option>Diseño de pieza gráfica</option>
+            <option>Pantallas / contenido digital</option>
+            <option>Activación o evento</option>
+            <option>Reparación o reposición de material</option>
+            <option>Otro</option>
+          </select>
+        </div>
+
+        <div class="full">
+          <span class="lbl">Urgencia <span class="req">*</span></span>
+          <div class="urg" role="radiogroup" aria-label="Urgencia">
+            <input type="radio" id="u-alta" name="urgencia" value="Alta" required>
+            <label for="u-alta">Alta<small>24–48 horas</small></label>
+            <input type="radio" id="u-media" name="urgencia" value="Media">
+            <label for="u-media">Media<small>Esta semana</small></label>
+            <input type="radio" id="u-baja" name="urgencia" value="Baja">
+            <label for="u-baja">Baja<small>Más de 1 semana</small></label>
+          </div>
+        </div>
+
+        <div class="full">
+          <label for="comentarios">Comentarios <span class="req">*</span></label>
+          <textarea id="comentarios" name="comentarios" required
+            placeholder="Describe tu requerimiento: qué necesitas, medidas, cantidades, ubicación…"></textarea>
+        </div>
+
+        <div class="full">
+          <span class="lbl">Adjuntar foto (opcional)</span>
+          <label class="drop" for="foto">
+            <strong>Haz clic para subir una foto</strong><br>
+            <span class="hint">Solo JPG · máximo 500 KB</span>
+            <input type="file" id="foto" accept=".jpg,.jpeg,image/jpeg">
+          </label>
+          <div id="preview"><img alt="Vista previa"><span id="fname"></span><button type="button" id="quitar">Quitar</button></div>
+          <div class="error" id="fotoError"></div>
+        </div>
+      </div>
+
+      <!-- anti-spam: los humanos no ven este campo -->
+      <input type="text" name="web" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="error" id="formError"></div>
+      <button class="btn" type="submit" id="enviar">Enviar solicitud</button>
+    </form>
+
+    <div id="ok">
+      <div class="check">✓</div>
+      <h2>¡Solicitud enviada!</h2>
+      <p>Tu número de pedido es <code id="pedidoId"></code>.<br>El equipo de Trade Marketing se pondrá en contacto contigo.</p>
+      <button class="btn" type="button" onclick="location.reload()">Enviar otra solicitud</button>
+    </div>
+  </div>
+</main>
+
+<footer>Cineplanet · Área de Marketing</footer>
+
+<script>
+  // ⬇⬇ PEGA AQUÍ LA URL DE TU APPS SCRIPT (termina en /exec) ⬇⬇
+  const APPS_SCRIPT_URL = "PEGAR_AQUI_URL_DE_APPS_SCRIPT";
+
+  const MAX_BYTES = 500 * 1024;
+  const form = document.getElementById('form');
+  const fotoInput = document.getElementById('foto');
+  const fotoError = document.getElementById('fotoError');
+  const formError = document.getElementById('formError');
+  const preview = document.getElementById('preview');
+  const btn = document.getElementById('enviar');
+  let foto = null; // {name, data(base64)}
+
+  // Fecha de hoy por defecto
+  const hoy = new Date(); hoy.setMinutes(hoy.getMinutes() - hoy.getTimezoneOffset());
+  document.getElementById('fecha').value = hoy.toISOString().slice(0, 10);
+
+  function showErr(el, msg){ el.textContent = msg; el.style.display = msg ? 'block' : 'none'; }
+
+  fotoInput.addEventListener('change', () => {
+    showErr(fotoError, '');
+    const f = fotoInput.files[0];
+    if (!f) return;
+    const esJpg = /\.(jpe?g)$/i.test(f.name) && (!f.type || f.type === 'image/jpeg');
+    if (!esJpg) { fotoInput.value = ''; return showErr(fotoError, 'La foto debe estar en formato JPG.'); }
+    if (f.size > MAX_BYTES) {
+      fotoInput.value = '';
+      return showErr(fotoError, `La foto pesa ${Math.round(f.size/1024)} KB. El máximo es 500 KB.`);
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      foto = { name: f.name, data: reader.result.split(',')[1] };
+      preview.querySelector('img').src = reader.result;
+      document.getElementById('fname').textContent = `${f.name} · ${Math.round(f.size/1024)} KB`;
+      preview.style.display = 'flex';
+    };
+    reader.readAsDataURL(f);
+  });
+
+  document.getElementById('quitar').addEventListener('click', () => {
+    foto = null; fotoInput.value = ''; preview.style.display = 'none';
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showErr(formError, '');
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return showErr(formError, 'Completa todos los campos obligatorios (*).');
+    }
+    const fd = new FormData(form);
+    if (fd.get('web')) return; // bot
+
+    const payload = {
+      solicitante: fd.get('solicitante').trim(),
+      provincia: fd.get('provincia'),
+      complejo: fd.get('complejo').trim(),
+      fecha: fd.get('fecha'),
+      tipo: fd.get('tipo'),
+      urgencia: fd.get('urgencia'),
+      comentarios: fd.get('comentarios').trim(),
+      foto: foto
+    };
+
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    try {
+      // Sin cabecera Content-Type para evitar el bloqueo CORS de Google
+      const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'Error desconocido');
+      document.getElementById('pedidoId').textContent = out.id;
+      form.style.display = 'none';
+      document.getElementById('ok').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      showErr(formError, 'No se pudo enviar la solicitud. Revisa tu conexión e inténtalo de nuevo. (' + err.message + ')');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enviar solicitud';
+    }
+  });
+</script>
+</body>
+</html>
